@@ -9,12 +9,23 @@ COPY ./src ./src
 RUN ./mvnw clean install
 
 
-FROM eclipse-temurin:17.0.5_8-jre-ubi9-minimal
+FROM eclipse-temurin:17.0.5_8-jre-ubi9-minimal as layered
 WORKDIR /app
 ARG JAR_FILE=target/*.jar
 COPY --from=builder /app/${JAR_FILE} /app/app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
+
+
+
+FROM eclipse-temurin:17.0.5_8-jre-ubi9-minimal
+ARG JAR_FILE=target/*.jar
+WORKDIR /app
+COPY --from=layered /app/dependencies/ ./
+COPY --from=layered /app/spring-boot-loader/ ./
+COPY --from=layered /app/snapshot-dependencies/ ./
+COPY --from=layered /app/application/ ./
 
 RUN useradd appuser
 USER appuser
 
-ENTRYPOINT ["java", "-jar","app.jar"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
