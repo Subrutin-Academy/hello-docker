@@ -5,10 +5,9 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       maximum-pool-size: 10
-    url: jdbc:postgresql://${DATABASE_ADDR}/${DATABASE_NAME}?reWriteBatchedInserts=true
-
-    username: subrutin
-    password: subrutin
+    url: jdbc:postgresql://${DATABASE_ADDR:localhost}/${DATABASE_NAME:book_catalog}?reWriteBatchedInserts=true
+    username: ${DATABASE_USERNAME:subrutin}
+    password: ${DATABASE_PASSWORD:subrutin}
   jpa:
     database: POSTGRESQL
     hibernate:
